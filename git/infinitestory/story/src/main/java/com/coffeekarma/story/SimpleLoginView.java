@@ -1,4 +1,4 @@
-package com.coffekarma.story;
+package com.coffeekarma.story;
 
 import com.vaadin.data.validator.AbstractValidator;
 import com.vaadin.data.validator.EmailValidator;

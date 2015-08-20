@@ -1,4 +1,4 @@
-package com.coffekarma.story;
+package com.coffeekarma.story;
 
 import javax.servlet.annotation.WebServlet;
 

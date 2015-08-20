@@ -1,4 +1,4 @@
-package com.coffekarma.story;
+package com.coffeekarma.story;
 
 import java.util.function.Consumer;
 import java.util.logging.Logger;
