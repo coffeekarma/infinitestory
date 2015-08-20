@@ -24,9 +24,6 @@ import com.vaadin.ui.VerticalLayout;
 @Push
 public class StoryView extends CustomComponent implements View {
 
-	private final static Logger LOG = Logger.getLogger(StoryView.class
-			.getName());
-
 	private static final String ID_SEND = "Send";
 
 	private static final String ID_LOGOUT = "Logout";
@@ -98,22 +95,19 @@ public class StoryView extends CustomComponent implements View {
 
 	@Override
 	public void detach() {
-		super.detach();
 		Broadcaster.unregister(mListener);
-
+		super.detach();
 	};
 
 	private Consumer<String> createBroadCastListener() {
 		return text -> {
-			if (getSession() != null) {
-				LOG.info("Pushing text for "
-						+ String.valueOf(getSession().getAttribute("user")));
-			}
-			if (mStoryTextContent != null && getUI() != null
-					&& !text.equals(mStoryTextContent.getValue())) {
-				mStoryTextContent.setValue(text);
-				UI.getCurrent().push();
-			}
+			UI.getCurrent().access(() -> {
+				if (mStoryTextContent != null && getUI() != null
+						&& !text.equals(mStoryTextContent.getValue())) {
+					mStoryTextContent.setValue(text);
+					getUI().push();
+				}	
+			});
 		};
 	}
 
