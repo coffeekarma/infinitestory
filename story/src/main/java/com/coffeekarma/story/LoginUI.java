@@ -1,7 +1,8 @@
-package com.coffekarma.story;
+package com.coffeekarma.story;
 
 import javax.servlet.annotation.WebServlet;
 
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
@@ -21,6 +22,7 @@ import com.vaadin.ui.Window;
 /**
  *
  */
+@Push
 @Theme("mytheme")
 @Widgetset("com.coffekarma.story.MyAppWidgetset")
 public class LoginUI extends UI {
@@ -42,8 +44,8 @@ public class LoginUI extends UI {
 	        //
 	        // Add the main view of the application
 	        //
-	        getNavigator().addView(MainView.NAME,
-	                MainView.class);
+	        getNavigator().addView(StoryView.NAME,
+	                StoryView.class);
 
 	        //
 	        // We use a view change handler to ensure the user is always redirected
@@ -54,7 +56,6 @@ public class LoginUI extends UI {
 	            @Override
 	            public boolean beforeViewChange(ViewChangeEvent event) {
 
-	                // Check if a user has logged in
 	                boolean isLoggedIn = getSession().getAttribute("user") != null;
 	                boolean isLoginView = event.getNewView() instanceof SimpleLoginView;
 

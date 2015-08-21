@@ -30,7 +30,20 @@
 @import "../valo/valo.scss";
 
 @mixin mytheme {
-  @include valo;
 
-  // Insert your own theme rules here
+@include valo;
+
+
+.bordered {
+    border: 2px solid #E0E0E0;
+    border-top-color: #E0E0E0;
+    border-bottom-color: #E0E0E0;
+    border-right-color: #E0E0E0;
+    color: #464f52;
+}
+
+
+
+
+
 }
