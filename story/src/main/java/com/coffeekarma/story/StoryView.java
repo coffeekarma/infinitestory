@@ -101,19 +101,23 @@ public class StoryView extends CustomComponent implements View {
 
 	private Consumer<String> createBroadCastListener() {
 		return text -> {
-			UI.getCurrent().access(() -> {
-				if (mStoryTextContent != null && getUI() != null
-						&& !text.equals(mStoryTextContent.getValue())) {
-					mStoryTextContent.setValue(text);
-					getUI().push();
-				}	
-			});
+			UI accessUI = getUI();
+			if(accessUI != null){
+				accessUI.access(() -> {
+					if (mStoryTextContent != null && getUI() != null
+							&& !text.equals(mStoryTextContent.getValue())) {
+						mStoryTextContent.setValue(text);
+						accessUI.push();
+					}	
+				});
+			}
 		};
 	}
 
 	private ClickListener getClickListener() {
 		if (mClickListener == null) {
 			mClickListener = (event) -> {
+				System.out.println("click for : " + getSession().getAttribute("user") );
 					if (ID_LOGOUT.equals(event.getButton().getCaption())) {
 
 						// "Logout" the user
