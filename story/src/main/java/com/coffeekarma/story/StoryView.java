@@ -113,10 +113,7 @@ public class StoryView extends CustomComponent implements View {
 
 	private ClickListener getClickListener() {
 		if (mClickListener == null) {
-			mClickListener = new Button.ClickListener() {
-
-				@Override
-				public void buttonClick(ClickEvent event) {
+			mClickListener = (event) -> {
 					if (ID_LOGOUT.equals(event.getButton().getCaption())) {
 
 						// "Logout" the user
@@ -130,7 +127,6 @@ public class StoryView extends CustomComponent implements View {
 						Broadcaster.broadcast(mStoryTextContent.getValue()
 								+ "<br/>" + inputValue);
 					}
-				}
 			};
 		}
 		return mClickListener;
