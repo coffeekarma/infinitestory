@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import com.coffeekarma.story.communication.Broadcaster;
+import com.coffeekarma.story.session.User;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.vaadin.annotations.Push;
 import com.vaadin.navigator.View;
@@ -86,7 +87,7 @@ public class StoryView extends CustomComponent implements View {
 	@Override
 	public void enter(ViewChangeEvent event) {
 		// Get the user name from the session
-		String username = String.valueOf(getSession().getAttribute("user"));
+		String username = ((User) getSession().getAttribute("user")).getName();
 
 		// And show the username
 		mWelcomeLabel.setValue("Hello " + username);
@@ -102,13 +103,13 @@ public class StoryView extends CustomComponent implements View {
 	private Consumer<String> createBroadCastListener() {
 		return text -> {
 			UI accessUI = getUI();
-			if(accessUI != null){
+			if (accessUI != null) {
 				accessUI.access(() -> {
 					if (mStoryTextContent != null && getUI() != null
 							&& !text.equals(mStoryTextContent.getValue())) {
 						mStoryTextContent.setValue(text);
 						accessUI.push();
-					}	
+					}
 				});
 			}
 		};
@@ -117,20 +118,21 @@ public class StoryView extends CustomComponent implements View {
 	private ClickListener getClickListener() {
 		if (mClickListener == null) {
 			mClickListener = (event) -> {
-				System.out.println("click for : " + getSession().getAttribute("user") );
-					if (ID_LOGOUT.equals(event.getButton().getCaption())) {
+				System.out.println("click for : "
+						+ getSession().getAttribute("user"));
+				if (ID_LOGOUT.equals(event.getButton().getCaption())) {
 
-						// "Logout" the user
-						getSession().setAttribute("user", null);
+					// "Logout" the user
+					getSession().setAttribute("user", null);
 
-						// Refresh this view, should redirect to login view
-						getUI().getNavigator().navigateTo(NAME);
-					} else if (ID_SEND.equals(event.getButton().getCaption())) {
-						String inputValue = mInputArea.getValue();
-						inputValue = SafeHtmlUtils.htmlEscape(inputValue);
-						Broadcaster.broadcast(mStoryTextContent.getValue()
-								+ "<br/>" + inputValue);
-					}
+					// Refresh this view, should redirect to login view
+					getUI().getNavigator().navigateTo(NAME);
+				} else if (ID_SEND.equals(event.getButton().getCaption())) {
+					String inputValue = mInputArea.getValue();
+					inputValue = SafeHtmlUtils.htmlEscape(inputValue);
+					Broadcaster.broadcast(mStoryTextContent.getValue()
+							+ "<br/>" + inputValue);
+				}
 			};
 		}
 		return mClickListener;
