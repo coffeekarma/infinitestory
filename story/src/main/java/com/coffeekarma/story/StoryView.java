@@ -1,9 +1,11 @@
 package com.coffeekarma.story;
 
 import java.util.function.Consumer;
-import java.util.logging.Logger;
+
+import org.apache.logging.log4j.LogManager;
 
 import com.coffeekarma.story.communication.Broadcaster;
+import com.coffeekarma.story.communication.InMemoryText;
 import com.coffeekarma.story.session.User;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.vaadin.annotations.Push;
@@ -12,7 +14,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -24,117 +25,115 @@ import com.vaadin.ui.VerticalLayout;
 
 @Push
 public class StoryView extends CustomComponent implements View {
+  private static final long serialVersionUID = -1538069809326840001L;
 
-	private static final String ID_SEND = "Send";
+  private static final org.apache.logging.log4j.Logger log = LogManager.getLogger(StoryView.class);
 
-	private static final String ID_LOGOUT = "Logout";
+  private static final String ID_SEND = "Send";
 
-	public static final String NAME = "";
+  private static final String ID_LOGOUT = "Logout";
 
-	private Label mWelcomeLabel = new Label();
+  public static final String NAME = "";
 
-	Button mLogout = new Button(ID_LOGOUT, getClickListener());
+  private Label mWelcomeLabel = new Label();
 
-	private ClickListener mClickListener = null;
+  Button mLogout = new Button(ID_LOGOUT, getClickListener());
 
-	private Label mStoryTextContent = null;
+  private ClickListener mClickListener = null;
 
-	private TextArea mInputArea = null;
+  private Label mStoryTextContent = null;
 
-	private Consumer<String> mListener = null;
+  private TextArea mInputArea = null;
 
-	public StoryView() {
-		createComponents();
-		mListener = createBroadCastListener();
-		Broadcaster.register(mListener);
-	}
+  private Consumer<String> mListener = null;
 
-	private void createComponents() {
-		// Top
-		mWelcomeLabel.setStyleName("welcomelabel");
-		HorizontalLayout topLayout = new HorizontalLayout(mWelcomeLabel,
-				mLogout);
-		topLayout.setComponentAlignment(mWelcomeLabel, Alignment.MIDDLE_LEFT);
-		topLayout.setSpacing(true);
+  public StoryView() {
+    createComponents();
+    mListener = createBroadCastListener();
+    Broadcaster.register(mListener);
+  }
 
-		Panel storyPanel = new Panel();
-		storyPanel.setWidth("100%");
-		storyPanel.addStyleName("bordered");
-		// storyTextArea.setHeight("10px");
-		mStoryTextContent = new Label();
-		mStoryTextContent.setContentMode(ContentMode.HTML);
-		mStoryTextContent
-				.setValue("<p style=\"color:red\">1. Testing <br/> 2. Testing</p>");
-		storyPanel.setContent(mStoryTextContent);
-		storyPanel.setHeight("60ex");
-		mInputArea = new TextArea();
-		mInputArea.setWidth("100%");
-		Button sendButton = new Button(ID_SEND, getClickListener());
-		VerticalLayout bottomLayout = new VerticalLayout(mInputArea, sendButton);
-		bottomLayout.setComponentAlignment(sendButton, Alignment.BOTTOM_LEFT);
-		bottomLayout.setWidth("100%");
-		bottomLayout.setSpacing(true);
+  private void createComponents() {
+    // Top
+    mWelcomeLabel.setStyleName("welcomelabel");
+    HorizontalLayout topLayout = new HorizontalLayout(mWelcomeLabel, mLogout);
+    topLayout.setComponentAlignment(mWelcomeLabel, Alignment.MIDDLE_LEFT);
+    topLayout.setSpacing(true);
 
-		VerticalLayout rootLayout = new VerticalLayout();
-		rootLayout.setSpacing(true);
-		rootLayout.setMargin(true);
-		rootLayout.addComponents(topLayout, storyPanel, bottomLayout);
-		rootLayout.setComponentAlignment(topLayout, Alignment.MIDDLE_RIGHT);
-		rootLayout.setSizeFull();
-		setCompositionRoot(rootLayout);
-	}
+    Panel storyPanel = new Panel();
+    storyPanel.setWidth("100%");
+    storyPanel.addStyleName("bordered");
+    // storyTextArea.setHeight("10px");
+    mStoryTextContent = new Label();
+    mStoryTextContent.setContentMode(ContentMode.HTML);
+    mStoryTextContent.setValue(InMemoryText.INSTANCE.getText());
+    storyPanel.setContent(mStoryTextContent);
+    storyPanel.setHeight("60ex");
+    mInputArea = new TextArea();
+    mInputArea.setWidth("100%");
+    Button sendButton = new Button(ID_SEND, getClickListener());
+    VerticalLayout bottomLayout = new VerticalLayout(mInputArea, sendButton);
+    bottomLayout.setComponentAlignment(sendButton, Alignment.BOTTOM_LEFT);
+    bottomLayout.setWidth("100%");
+    bottomLayout.setSpacing(true);
 
-	@Override
-	public void enter(ViewChangeEvent event) {
-		// Get the user name from the session
-		String username = ((User) getSession().getAttribute("user")).getName();
+    VerticalLayout rootLayout = new VerticalLayout();
+    rootLayout.setSpacing(true);
+    rootLayout.setMargin(true);
+    rootLayout.addComponents(topLayout, storyPanel, bottomLayout);
+    rootLayout.setComponentAlignment(topLayout, Alignment.MIDDLE_RIGHT);
+    rootLayout.setSizeFull();
+    setCompositionRoot(rootLayout);
+  }
 
-		// And show the username
-		mWelcomeLabel.setValue("Hello " + username);
+  @Override
+  public void enter(ViewChangeEvent event) {
+    // Get the user name from the session
+    String username = ((User) getSession().getAttribute("user")).getName();
 
-	}
+    // And show the username
+    mWelcomeLabel.setValue("Hello " + username);
+    log.debug("Login for : " + getSession().getAttribute("user"));
+  }
 
-	@Override
-	public void detach() {
-		Broadcaster.unregister(mListener);
-		super.detach();
-	};
+  @Override
+  public void detach() {
+    Broadcaster.unregister(mListener);
+    super.detach();
+  };
 
-	private Consumer<String> createBroadCastListener() {
-		return text -> {
-			UI accessUI = getUI();
-			if (accessUI != null) {
-				accessUI.access(() -> {
-					if (mStoryTextContent != null && getUI() != null
-							&& !text.equals(mStoryTextContent.getValue())) {
-						mStoryTextContent.setValue(text);
-						accessUI.push();
-					}
-				});
-			}
-		};
-	}
+  private Consumer<String> createBroadCastListener() {
+    return text -> {
+      UI accessUI = getUI();
+      if (accessUI != null) {
+        accessUI.access(() -> {
+          if (mStoryTextContent != null && getUI() != null) {
+            mStoryTextContent.setValue(InMemoryText.INSTANCE.getText());
+            accessUI.push();
+          }
+        });
+      }
+    };
+  }
 
-	private ClickListener getClickListener() {
-		if (mClickListener == null) {
-			mClickListener = (event) -> {
-				System.out.println("click for : "
-						+ getSession().getAttribute("user"));
-				if (ID_LOGOUT.equals(event.getButton().getCaption())) {
+  private ClickListener getClickListener() {
+    if (mClickListener == null) {
+      mClickListener = (event) -> {
+        if (ID_LOGOUT.equals(event.getButton().getCaption())) {
 
-					// "Logout" the user
-					getSession().setAttribute("user", null);
+          // "Logout" the user
+          getSession().setAttribute("user", null);
 
-					// Refresh this view, should redirect to login view
-					getUI().getNavigator().navigateTo(NAME);
-				} else if (ID_SEND.equals(event.getButton().getCaption())) {
-					String inputValue = mInputArea.getValue();
-					inputValue = SafeHtmlUtils.htmlEscape(inputValue);
-					Broadcaster.broadcast(mStoryTextContent.getValue()
-							+ "<br/>" + inputValue);
-				}
-			};
-		}
-		return mClickListener;
-	}
+          // Refresh this view, should redirect to login view
+          getUI().getNavigator().navigateTo(NAME);
+        } else if (ID_SEND.equals(event.getButton().getCaption())) {
+          String inputValue = mInputArea.getValue();
+          mInputArea.clear();
+          inputValue = SafeHtmlUtils.htmlEscape(inputValue);
+          Broadcaster.broadcast(((User) getSession().getAttribute("user")).getName(), inputValue);
+        }
+      };
+    }
+    return mClickListener;
+  }
 }
