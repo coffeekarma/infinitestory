@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+		</Console>
+		<RollingFile name="DAILY_LOG" fileName="${sys:catalina.home}/logs/story.log"
+			filePattern="app.log.%d{ddMMyyyy}_daily.log">
+			<PatternLayout pattern="%d [%t] %-5p %c - %m%n"  />
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" />
+			</Policies>
+		</RollingFile>
+	</Appenders>
+	<Loggers>
+		<Root level="ALL">
+			<AppenderRef ref="Console" />
+			<AppenderRef ref="DAILY_LOG" />
+		</Root>
+	</Loggers>
+</Configuration>
